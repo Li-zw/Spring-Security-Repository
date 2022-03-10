@@ -34,4 +34,15 @@ public class LoginController {
         return "redirect:index.html";
     }
 
+
+    /**
+     * 登录失败跳转 error.html
+     *
+     * @return
+     */
+    @RequestMapping("/toError")
+    public String toError() {
+        return "redirect:error.html";
+    }
+
 }

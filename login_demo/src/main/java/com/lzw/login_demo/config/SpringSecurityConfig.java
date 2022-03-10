@@ -1,5 +1,6 @@
 package com.lzw.login_demo.config;
 
+import com.lzw.login_demo.handler.MyAuthenticationSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,12 +33,21 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 配置自定义登录页
                 .loginPage("/login.html")
                 // 登录成功跳转的页面,Post 请求,否则回报 405 错误
-                .successForwardUrl("/toIndex");
+//                .successForwardUrl("/toIndex")
+                // 登录成功后的处理器,不能和 successForwardUrl 共存,否则会报错
+                .successHandler(new MyAuthenticationSuccessHandler("http://www.baidu.com"))
+                .failureForwardUrl("/toError")
+
+
+                // 自定义登录参数名
+                .usernameParameter("user")
+                .passwordParameter("pwd");
 
 
         // 授权认证
         http.authorizeRequests()
-                // 放行 login.html
+                // 放行 error.html login.html
+                .antMatchers("/error.html").permitAll()
                 .antMatchers("/login.html").permitAll()
                 // 所有请求都必须认证,必须在登录后后被访问
                 .anyRequest()
