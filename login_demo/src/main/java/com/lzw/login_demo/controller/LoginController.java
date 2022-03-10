@@ -12,9 +12,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class LoginController {
 
+
+    /**
+     * 登录验证 index.html
+     *
+     * @return
+     */
     @RequestMapping("/dologin")
-    public String doLogin() {
-        System.out.println("执行登录方法...");
+    public String login() {
+        return "redirect:index.html";
+    }
+
+
+    /**
+     * 跳转 index.html
+     *
+     * @return
+     */
+    @RequestMapping("/toIndex")
+    public String toIndex() {
         return "redirect:index.html";
     }
 
