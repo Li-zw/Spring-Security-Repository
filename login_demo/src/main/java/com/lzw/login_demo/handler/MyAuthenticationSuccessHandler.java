@@ -25,9 +25,11 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
+        // 获取登录信息
         User user = (User) authentication.getPrincipal();
         System.out.println("username = " + user.getUsername());
-        System.out.println("password = " + user.getPassword()); // 安全问题会输出null
+        // 安全问题会输出null
+        System.out.println("password = " + user.getPassword());
         System.out.println("authorities = " + user.getAuthorities());
 
         httpServletResponse.sendRedirect(url);

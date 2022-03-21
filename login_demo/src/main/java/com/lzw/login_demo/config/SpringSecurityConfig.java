@@ -1,5 +1,6 @@
 package com.lzw.login_demo.config;
 
+import com.lzw.login_demo.handler.MyAuthenticationFailureHandler;
 import com.lzw.login_demo.handler.MyAuthenticationSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,10 +37,14 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 //                .successForwardUrl("/toIndex")
                 // 登录成功后的处理器,不能和 successForwardUrl 共存,否则会报错
                 .successHandler(new MyAuthenticationSuccessHandler("http://www.baidu.com"))
-                .failureForwardUrl("/toError")
 
+                // 登录失败跳转的页面,Post 请求,否则回报 405 错误
+//                .failureForwardUrl("/toError")
 
-                // 自定义登录参数名
+                // 登录失败后的处理器
+                .failureHandler(new MyAuthenticationFailureHandler("/error.html"))
+
+                // 自定义登录参数名,须和表单字段一致
                 .usernameParameter("user")
                 .passwordParameter("pwd");
 
