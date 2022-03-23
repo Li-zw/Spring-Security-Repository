@@ -1,9 +1,12 @@
 package com.lzw.login_demo.config;
 
+import com.lzw.login_demo.handler.MyAccessHandler;
 import com.lzw.login_demo.handler.MyAuthenticationFailureHandler;
 import com.lzw.login_demo.handler.MyAuthenticationSuccessHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +21,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
+
+    @Autowired
+    private MyAccessHandler myAccessHandler;
 
     /**
      * 自定义登录页面
@@ -36,13 +42,13 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 登录成功跳转的页面,Post 请求,否则回报 405 错误
 //                .successForwardUrl("/toIndex")
                 // 登录成功后的处理器,不能和 successForwardUrl 共存,否则会报错
-                .successHandler(new MyAuthenticationSuccessHandler("http://www.baidu.com"))
+                .successHandler(new MyAuthenticationSuccessHandler("/index.html"))
 
                 // 登录失败跳转的页面,Post 请求,否则回报 405 错误
-//                .failureForwardUrl("/toError")
+                .failureForwardUrl("/toError")
 
                 // 登录失败后的处理器
-                .failureHandler(new MyAuthenticationFailureHandler("/error.html"))
+//                .failureHandler(new MyAuthenticationFailureHandler("/error.html"))
 
                 // 自定义登录参数名,须和表单字段一致
                 .usernameParameter("user")
@@ -53,14 +59,53 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 // 放行 error.html login.html
                 .antMatchers("/error.html").permitAll()
-                .antMatchers("/login.html").permitAll()
+//                .antMatchers("/login.html").permitAll()
+                .antMatchers("/login.html").access("permitAll()")
+                /**
+                 * 放行静态资源
+                 * 推荐 .antMatchers("/js/**", "/css/**", "/images/**").permitAll()
+                 */
+                .antMatchers("/js/**", "/css/**", "/images/**").permitAll()
+//                .antMatchers("/**/*.png").permitAll()
+                // 正则表达式放行png文件
+//                .regexMatchers(".+[.]png").permitAll()
+
+                // 限定请求方法
+//                .regexMatchers(HttpMethod.POST, "/toDemo").permitAll()
+
+                /**
+                 * 配置 mvcMtchers ,两者等价
+                 * .mvcMtchers("/toDemo").servletPath("/api").permitAll()
+                 * .antMatchers("/api/toDemo").permitAll()
+                 *
+                 */
+//                .mvcMtchers("/toDemo").servletPath("/api").permitAll()
+                .antMatchers("/api/toDemo").permitAll()
+
+                /**
+                 * 控制权限 区分大小写
+                 */
+//                .antMatchers("/main.html").hasAuthority("admin")
+//                .antMatchers("/main.html").hasAnyAuthority("admin","admiN")
+//                .antMatchers("/main.html").hasRole("root")
+                .antMatchers("/main.html").access("hasRole('root')")
+
+                // 限制IP地址
+//                .antMatchers("/main.html").hasIpAddress("127.0.0.1")
+
                 // 所有请求都必须认证,必须在登录后后被访问
-                .anyRequest()
-                .authenticated();
+//                .anyRequest()
+//                .authenticated();
+
+                .anyRequest().access("@myServiceImpl.hasPermission(request,authentication)");
 
 
         // 关闭 csrf 防护
         http.csrf().disable();
+
+        /**异常处理*/
+        http.exceptionHandling()
+                .accessDeniedHandler(myAccessHandler);
     }
 
 

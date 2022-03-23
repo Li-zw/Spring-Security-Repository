@@ -1,4 +1,4 @@
-package com.lzw.login_demo.service;
+package com.lzw.login_demo.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -32,7 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         // 把查询出来的密码（注册时已经加密过）进行解析，或者直接把密码放入构造方法
         String password = passwordEncoder.encode("123");
-        return new User(username, password, AuthorityUtils.commaSeparatedStringToAuthorityList("admin,normal"));
+        return new User(username, password, AuthorityUtils.commaSeparatedStringToAuthorityList("admin,normal,ROLE_root,/index.html"));
 
     }
 }

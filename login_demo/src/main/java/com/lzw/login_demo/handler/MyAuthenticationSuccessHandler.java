@@ -25,6 +25,8 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Authentication authentication) throws IOException, ServletException {
+        // 获取IP地址
+        System.out.println(httpServletRequest.getRemoteAddr());
         // 获取登录信息
         User user = (User) authentication.getPrincipal();
         System.out.println("username = " + user.getUsername());

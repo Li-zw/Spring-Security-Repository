@@ -1,7 +1,9 @@
 package com.lzw.login_demo.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @Author LZW
@@ -43,6 +45,18 @@ public class LoginController {
     @RequestMapping("/toError")
     public String toError() {
         return "redirect:error.html";
+    }
+
+
+    /**
+     * 页面跳转 demo.html
+     *
+     * @return
+     */
+    @GetMapping("/toDemo")
+    @ResponseBody
+    public String toDemo() {
+        return "demo";
     }
 
 }
