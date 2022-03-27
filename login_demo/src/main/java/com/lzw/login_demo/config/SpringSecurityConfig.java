@@ -3,14 +3,20 @@ package com.lzw.login_demo.config;
 import com.lzw.login_demo.handler.MyAccessHandler;
 import com.lzw.login_demo.handler.MyAuthenticationFailureHandler;
 import com.lzw.login_demo.handler.MyAuthenticationSuccessHandler;
+import com.lzw.login_demo.service.impl.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+
+import javax.sql.DataSource;
 
 /**
  * @Author LZW
@@ -24,6 +30,16 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private MyAccessHandler myAccessHandler;
+
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
+
+    @Autowired
+    private DataSource dataSource;
+
+    @Autowired
+    private PersistentTokenRepository persistentTokenRepository;
+
 
     /**
      * 自定义登录页面
@@ -40,9 +56,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 配置自定义登录页
                 .loginPage("/login.html")
                 // 登录成功跳转的页面,Post 请求,否则回报 405 错误
-//                .successForwardUrl("/toIndex")
+                .successForwardUrl("/toIndex")
                 // 登录成功后的处理器,不能和 successForwardUrl 共存,否则会报错
-                .successHandler(new MyAuthenticationSuccessHandler("/index.html"))
+//                .successHandler(new MyAuthenticationSuccessHandler("/index.html"))
 
                 // 登录失败跳转的页面,Post 请求,否则回报 405 错误
                 .failureForwardUrl("/toError")
@@ -80,7 +96,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                  *
                  */
 //                .mvcMtchers("/toDemo").servletPath("/api").permitAll()
-                .antMatchers("/api/toDemo").permitAll()
+//                .antMatchers("/api/toDemo").permitAll()
 
                 /**
                  * 控制权限 区分大小写
@@ -88,16 +104,17 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 //                .antMatchers("/main.html").hasAuthority("admin")
 //                .antMatchers("/main.html").hasAnyAuthority("admin","admiN")
 //                .antMatchers("/main.html").hasRole("root")
-                .antMatchers("/main.html").access("hasRole('root')")
+//                .antMatchers("/main.html").access("hasRole('root')")
 
                 // 限制IP地址
 //                .antMatchers("/main.html").hasIpAddress("127.0.0.1")
 
                 // 所有请求都必须认证,必须在登录后后被访问
-//                .anyRequest()
-//                .authenticated();
+                .anyRequest()
+                .authenticated();
 
-                .anyRequest().access("@myServiceImpl.hasPermission(request,authentication)");
+        // 自定义权限处理器
+//                .anyRequest().access("@myServiceImpl.hasPermission(request,authentication)");
 
 
         // 关闭 csrf 防护
@@ -106,6 +123,21 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         /**异常处理*/
         http.exceptionHandling()
                 .accessDeniedHandler(myAccessHandler);
+
+
+        // 记住我
+        http.rememberMe()
+                // token 失效时间60s
+                .tokenValiditySeconds(60)
+                // 自定义登录逻辑
+                .userDetailsService(userDetailsService)
+                // 持久层对象
+                .tokenRepository(persistentTokenRepository);
+
+
+        // 退出登录
+        http.logout().logoutSuccessUrl("/login.html");
+
     }
 
 
@@ -114,5 +146,14 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
+
+    @Bean
+    public PersistentTokenRepository getPersistentTokenRepository() {
+        JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
+        jdbcTokenRepository.setDataSource(dataSource);
+        // 自动建表,第一次启动的需要，第二次启动注释掉
+//        jdbcTokenRepository.setCreateTableOnStartup(true);
+        return jdbcTokenRepository;
+    }
 
 }

@@ -1,5 +1,7 @@
 package com.lzw.login_demo.controller;
 
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +33,8 @@ public class LoginController {
      *
      * @return
      */
+//    @Secured("ROLE_root")
+    @PreAuthorize("hasRole('root')")
     @RequestMapping("/toIndex")
     public String toIndex() {
         return "redirect:index.html";
