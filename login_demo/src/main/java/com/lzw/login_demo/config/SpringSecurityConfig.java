@@ -54,21 +54,22 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 请求地址与表单 action 地址一致
                 .loginProcessingUrl("/login")
                 // 配置自定义登录页
-                .loginPage("/login.html")
+//                .loginPage("/login.html")
+                .loginPage("/showLogin")
                 // 登录成功跳转的页面,Post 请求,否则回报 405 错误
                 .successForwardUrl("/toIndex")
                 // 登录成功后的处理器,不能和 successForwardUrl 共存,否则会报错
 //                .successHandler(new MyAuthenticationSuccessHandler("/index.html"))
 
                 // 登录失败跳转的页面,Post 请求,否则回报 405 错误
-                .failureForwardUrl("/toError")
+                .failureForwardUrl("/toError");
 
                 // 登录失败后的处理器
 //                .failureHandler(new MyAuthenticationFailureHandler("/error.html"))
 
-                // 自定义登录参数名,须和表单字段一致
-                .usernameParameter("user")
-                .passwordParameter("pwd");
+//                // 自定义登录参数名,须和表单字段一致
+//                .usernameParameter("user")
+//                .passwordParameter("pwd");
 
 
         // 授权认证
@@ -76,7 +77,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 放行 error.html login.html
                 .antMatchers("/error.html").permitAll()
 //                .antMatchers("/login.html").permitAll()
-                .antMatchers("/login.html").access("permitAll()")
+//                .antMatchers("/login.html").access("permitAll()")
+                .antMatchers("/showLogin").access("permitAll()")
                 /**
                  * 放行静态资源
                  * 推荐 .antMatchers("/js/**", "/css/**", "/images/**").permitAll()
@@ -118,7 +120,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
         // 关闭 csrf 防护
-        http.csrf().disable();
+//        http.csrf().disable();
 
         /**异常处理*/
         http.exceptionHandling()
